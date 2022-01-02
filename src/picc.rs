@@ -1,10 +1,17 @@
-//! The PICC (short for Proximity Integrated Circuit Card) is a card or tag using the ISO 14443A interface, eg Mifare or NTAG203.
+//! The PICC (short for Proximity Integrated Circuit Card) is a card or tag
+//! using the ISO 14443A interface, eg Mifare or NTAG203.
 
-/// Commands that can be send to the PICC.\
-/// The commands used for MIFARE Classic begin with **Mf** (cfr [Section 9](http://www.mouser.com/ds/2/302/MF1S503x-89574.pdf)).\
-/// The commands used for MIFARE Ultralight begin with **Ul** (cfr [Section 8.6](http://www.nxp.com/documents/data_sheet/MF0ICU1.pdf)).\
-/// Use PCD_MFAuthent to authenticate access to a sector,\
-/// then use the other commands to read/write/modify the blocks on the sector.\
+/// Commands that can be send to the PICC.
+///
+/// The commands used for MIFARE Classic begin with **Mf**
+/// (cfr [Section 9](http://www.mouser.com/ds/2/302/MF1S503x-89574.pdf)).
+///
+/// The commands used for MIFARE Ultralight begin with **Ul**
+/// (cfr [Section 8.6](http://www.nxp.com/documents/data_sheet/MF0ICU1.pdf)).
+///
+/// Use `PCD_MFAuthent` to authenticate access to a sector,
+/// then use the other commands to read/write/modify the blocks on the sector.
+///
 /// The read/write commands can also be used for MIFARE Ultralight.
 #[allow(dead_code)]
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -50,6 +57,7 @@ pub enum Command {
 }
 
 /// PICC Type
+#[allow(dead_code)]
 #[derive(Debug)]
 pub enum Type {
     Unknown,
@@ -75,28 +83,44 @@ pub enum Type {
     NotComplete,
 }
 
-#[derive(Debug)]
-pub struct Response {
-    pub data: Vec<u8>,
-    pub valid_bits: u8,
-    pub had_collision: bool,
+/// Select Acknowledge
+pub struct Sak {
+    byte: u8,
 }
 
-pub fn get_type(sak: u8) -> Type {
-    // http://www.nxp.com/documents/application_note/AN10833.pdf
-    // 3.2 Coding of Select Acknowledge (SAK)
-    // ignore 8-bit (iso14443 starts with LSBit = bit 1)
-    // fixes wrong type for manufacturer Infineon (http://nfc-tools.org/index.php?title=ISO14443A)
-    match sak & 0x7F {
-        0x04 => Type::NotComplete, // UID not complete
-        0x09 => Type::MifareMini,
-        0x08 => Type::Mifare1k,
-        0x18 => Type::Mifare4k,
-        0x00 => Type::MifareUL,
-        0x10 | 0x11 => Type::MifarePlus,
-        0x01 => Type::TNP3XXX,
-        0x20 => Type::Iso14443_4,
-        0x40 => Type::Iso18092,
-        _ =>    Type::Unknown,
+impl From<u8> for Sak {
+    fn from(byte: u8) -> Self {
+        Sak { byte }
+    }
+}
+
+impl Sak {
+    pub fn get_type(&self) -> Type {
+        // https://www.nxp.com/docs/en/application-note/AN10833.pdf
+        // 3.2 Coding of Select Acknowledge (SAK)
+        // ignore 8-bit (iso14443 starts with LSBit = bit 1)
+        // fixes wrong type for manufacturer Infineon (http://nfc-tools.org/index.php?title=ISO14443A)
+        match self.byte & 0x7F {
+            0x04 => Type::NotComplete, // UID not complete
+            0x09 => Type::MifareMini,
+            0x08 => Type::Mifare1k,
+            0x18 => Type::Mifare4k,
+            0x00 => Type::MifareUL,
+            0x10 | 0x11 => Type::MifarePlus,
+            0x01 => Type::TNP3XXX,
+            0x20 => Type::Iso14443_4,
+            0x40 => Type::Iso18092,
+            _ => Type::Unknown,
+        }
+    }
+
+    /// Is the PICC compliant with ISO/IEC 14443-4
+    pub fn is_compliant(&self) -> bool {
+        self.byte & (1 << 5) != 0
+    }
+
+    /// Does the SAK indicate the UID has been completely received
+    pub fn is_complete(&self) -> bool {
+        self.byte & (1 << 2) == 0
     }
 }
