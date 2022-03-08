@@ -2,12 +2,12 @@
 //!
 //! # Connections
 //!
-//! - P9.1 = 3V3 = VCC
-//! - P9.3 = GND = GND
-//! - P9.17 = SPI0_CS0 = NSS (SDA)
-//! - P9.18 = SPI0_D1 = MOSI
-//! - P9.21 = SPI0_D0 = MISO (SCL)
-//! - P9.22 = SPI0_SCLK = SCLK
+//! - P9.1  = 3V3       = VCC
+//! - P9.3  = GND       = GND
+//! - P9.17 = SPI0_CS0  = NSS  (config-pin P9.17 gpio)
+//! - P9.18 = SPI0_D1   = MOSI (config-pin P9.18 spi)
+//! - P9.21 = SPI0_D0   = MISO (config-pin P9.21 spi)
+//! - P9.22 = SPI0_SCLK = SCLK (config-pin P9.22 spi_sclk)
 
 extern crate linux_embedded_hal as hal;
 extern crate rfid_rs as mfrc522;

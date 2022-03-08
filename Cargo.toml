@@ -9,7 +9,6 @@ repository = "https://gitlab.com/jspngh/rfid-rs"
 homepage = "https://gitlab.com/jspngh/rfid-rs"
 keywords = ["rfid", "mfrc522", "mifare"]
 categories = ["embedded"]
-readme = "crate.info"
 
 [dependencies]
 embedded-hal = "0.2"
