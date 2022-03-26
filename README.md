@@ -3,7 +3,7 @@
 This is a `no_std` driver for the MFRC522, an *ISO/IEC 14443 A/MIFARE*
 reader/writer IC.
 This repository is an extension of [japaric/mfrc522](https://github.com/japaric/mfrc522)
-and will hopefully be merged with it one day.
+and the new home of the `mfrc522` crate.
 For more information on the background of this repository, [go here](doc/more_info.md).
 
 What works:
@@ -18,10 +18,8 @@ What works:
 
 ## Examples
 In the `examples/` directory, you can find an example for the Raspberry
-Pi and BeagleBone Black. The Raspberry Pi example is a copy of the
-example from **[mfrc522](https://github.com/japaric/mfrc522)** repository,
-but the BeagleBone example has been extended to show the new
-functionality in this repository.
+Pi and BeagleBone Black.
+The BeagleBone example fully demonstrates the available functionality.
 
 This code has also been tested with the STM32L476 Nucleo board, if an
 extra example for this use-case would be required, please open an issue.

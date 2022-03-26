@@ -4,9 +4,12 @@ which in turn is based on code by Dr. Leong and has been extended by Søren Thin
 
 Originally it required a `std` environment and only targeted
 embedded Linux platforms, like the Raspberry Pi and BeagleBone boards.
+This code was published as the `rfid-rs` crate.
 
-This has since then been refactored and now it is a `no_std` driver
-based on [embedded-hal](https://crates.io/crates/embedded-hal).
+Since then, this repository has been refactored and is now
+a `no_std` driver based on [embedded-hal](https://crates.io/crates/embedded-hal).
+The code is now published as the `mfrc522` crate, which was created
+by [japaric](https://github.com/japaric/mfrc522).
 
 ## Technical information
 There are three hardware components involved:
