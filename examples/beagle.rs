@@ -9,8 +9,7 @@
 //! - P9.21 = SPI0_D0   = MISO (config-pin P9.21 spi)
 //! - P9.22 = SPI0_SCLK = SCLK (config-pin P9.22 spi_sclk)
 
-extern crate linux_embedded_hal as hal;
-extern crate rfid_rs as mfrc522;
+use linux_embedded_hal as hal;
 
 use std::fs::File;
 use std::io::Write;

@@ -11,8 +11,7 @@
 //! - PIN22 = BCM25 = NSS (SDA)
 //! - PIN6 = GND = GND
 
-extern crate linux_embedded_hal as hal;
-extern crate rfid_rs as mfrc522;
+use linux_embedded_hal as hal;
 
 use std::fs::File;
 use std::io::Write;
