@@ -6,6 +6,8 @@ use embedded_hal as hal;
 use hal::blocking::spi;
 use hal::digital::v2::OutputPin;
 
+use heapless::Vec;
+
 mod picc;
 
 /// Registers in the MFRC522, the Proximity Coupling Device (PCD) used here.
@@ -432,8 +434,7 @@ where
             Uid::Triple(u) => tx_buffer[8..12].copy_from_slice(&u.bytes[0..4]),
         };
         // write data to transmit to the FIFO buffer
-        self.write_many(Register::FIFODataReg, &tx_buffer)
-            .map_err(Error::Spi)?;
+        self.write_many(Register::FIFODataReg, &tx_buffer)?;
 
         // signal command
         self.command(Command::MFAuthent).map_err(Error::Spi)?;
@@ -516,8 +517,7 @@ where
         self.flush_fifo_buffer().map_err(Error::Spi)?;
 
         // write data to transmit to the FIFO buffer
-        self.write_many(Register::FIFODataReg, data)
-            .map_err(Error::Spi)?;
+        self.write_many(Register::FIFODataReg, data)?;
 
         self.command(Command::CalcCRC).map_err(Error::Spi)?;
 
@@ -592,8 +592,7 @@ where
         self.flush_fifo_buffer().map_err(Error::Spi)?;
 
         // write data to transmit to the FIFO buffer
-        self.write_many(Register::FIFODataReg, tx_buffer)
-            .map_err(Error::Spi)?;
+        self.write_many(Register::FIFODataReg, tx_buffer)?;
 
         // signal command
         self.command(Command::Transceive).map_err(Error::Spi)?;
@@ -632,8 +631,7 @@ where
                 return Err(Error::NoRoom);
             }
             if valid_bytes > 0 {
-                self.read_many(Register::FIFODataReg, &mut buffer[0..valid_bytes])
-                    .map_err(Error::Spi)?;
+                self.read_many(Register::FIFODataReg, &mut buffer[0..valid_bytes])?;
                 valid_bits = (self.read(Register::ControlReg).map_err(Error::Spi)? & 0x07) as usize;
             }
         }
@@ -670,18 +668,23 @@ where
         })
     }
 
-    fn read_many<'b>(&mut self, reg: Register, buffer: &'b mut [u8]) -> Result<&'b [u8], E> {
-        let byte = reg.read_address();
+    fn read_many<'b>(&mut self, reg: Register, buffer: &'b mut [u8]) -> Result<&'b [u8], Error<E>> {
+        let mut vec = Vec::<u8, 65>::new();
+        let n = buffer.len();
+        for _ in 0..n {
+            vec.push(reg.read_address()).map_err(|_| Error::NoRoom)?;
+        }
+        vec.push(0).map_err(|_| Error::NoRoom)?;
 
         self.with_nss_low(move |mfr| {
-            mfr.spi.transfer(&mut [byte])?;
+            let res = mfr.spi.transfer(vec.as_mut()).map_err(Error::Spi)?;
 
-            let n = buffer.len();
-            for slot in &mut buffer[..n - 1] {
-                *slot = mfr.spi.transfer(&mut [byte])?[0];
+            for (idx, slot) in res[1..].iter().enumerate() {
+                if idx >= n {
+                    break;
+                }
+                buffer[idx] = *slot;
             }
-
-            buffer[n - 1] = mfr.spi.transfer(&mut [0])?[0];
 
             Ok(&*buffer)
         })
@@ -700,10 +703,12 @@ where
         self.with_nss_low(|mfr| mfr.spi.write(&[reg.write_address(), val]))
     }
 
-    fn write_many(&mut self, reg: Register, bytes: &[u8]) -> Result<(), E> {
+    fn write_many(&mut self, reg: Register, bytes: &[u8]) -> Result<(), Error<E>> {
         self.with_nss_low(|mfr| {
-            mfr.spi.write(&[reg.write_address()])?;
-            mfr.spi.write(bytes)?;
+            let mut vec = Vec::<u8, 65>::new();
+            vec.push(reg.write_address()).map_err(|_| Error::NoRoom)?;
+            vec.extend_from_slice(bytes).map_err(|_| Error::NoRoom)?;
+            mfr.spi.write(vec.as_slice()).map_err(Error::Spi)?;
 
             Ok(())
         })

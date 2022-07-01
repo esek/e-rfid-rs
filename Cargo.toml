@@ -13,6 +13,7 @@ categories = ["embedded", "hardware-support", "no-std"]
 
 [dependencies]
 embedded-hal = "0.2"
+heapless = "0.7"
 
 [dev-dependencies]
 linux-embedded-hal = "0.3.2"
