@@ -4,7 +4,7 @@
 //!
 //! - P9.1  = 3V3       = VCC
 //! - P9.3  = GND       = GND
-//! - P9.17 = SPI0_CS0  = NSS  (config-pin P9.17 gpio)
+//! - P9.17 = SPI0_CS0  = NSS  (config-pin P9.17 spi_cs (or gpio))
 //! - P9.18 = SPI0_D1   = MOSI (config-pin P9.18 spi)
 //! - P9.21 = SPI0_D0   = MISO (config-pin P9.21 spi)
 //! - P9.22 = SPI0_SCLK = SCLK (config-pin P9.22 spi_sclk)
@@ -16,7 +16,7 @@ use std::io::Write;
 
 use embedded_hal::blocking::delay::DelayMs;
 use embedded_hal::blocking::spi::{Transfer as SpiTransfer, Write as SpiWrite};
-use embedded_hal::digital::v2::OutputPin;
+use embedded_hal::digital::v2::{OutputPin, PinState};
 use hal::spidev::{SpiModeFlags, SpidevOptions};
 use hal::sysfs_gpio::Direction;
 use hal::{Delay, Pin, Spidev};
@@ -50,6 +50,21 @@ impl Led {
     }
 }
 
+pub struct DummyChipSelect;
+
+impl OutputPin for DummyChipSelect {
+    type Error = ();
+    fn set_low(&mut self) -> Result<(), Self::Error> {
+        Ok(())
+    }
+    fn set_high(&mut self) -> Result<(), Self::Error> {
+        Ok(())
+    }
+    fn set_state(&mut self, _state: PinState) -> Result<(), Self::Error> {
+        Ok(())
+    }
+}
+
 fn main() {
     let mut spi = Spidev::open("/dev/spidev0.0").unwrap();
     let options = SpidevOptions::new()
@@ -58,11 +73,15 @@ fn main() {
         .build();
     spi.configure(&options).unwrap();
 
+    // in case software controls the chip select (regular GPIO pin)
     let pin = Pin::new(5); // P9.17 is GPIO5
     pin.export().unwrap();
     while !pin.is_exported() {}
     pin.set_direction(Direction::Out).unwrap();
     pin.set_value(1).unwrap();
+
+    // in case hardware controls the chip select
+    let pin = DummyChipSelect {};
 
     let mut led = Led;
     let mut delay = Delay;
