@@ -1,3 +1,5 @@
+# _This fork is not under development, used internally as a locked dependency_
+
 # Rust MFRC522 driver
 
 This is a `no_std` driver for the MFRC522, an *ISO/IEC 14443 A/MIFARE*
