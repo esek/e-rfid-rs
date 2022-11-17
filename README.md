@@ -1,4 +1,9 @@
-# _This fork is not under development, used internally as a locked dependency_
+# _This fork is not under active development, used internally as a locked dependency_
+
+Changes from original branch:
+
+- [x] This text
+- [x] Add `new` associated function to implementation of `GenericUid` to ease testing
 
 # Rust MFRC522 driver
 

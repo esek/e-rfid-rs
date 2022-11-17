@@ -1,12 +1,12 @@
 [package]
 name = "mfrc522"
-version = "0.3.0"
-authors = ["Jonas Spanoghe <jonas@spanoghe.net>", "Jorge Aparicio <jorge@japaric.io>"]
+version = "0.4.0-esek"
+authors = ["Jonas Spanoghe <jonas@spanoghe.net>", "Jorge Aparicio <jorge@japaric.io>", "Emil Eriksson <emil@apkollen.se>"]
 edition = "2021"
-description = "A platform agnostic driver to interface the MFRC522 (RFID reader/writer)"
+description = "A platform agnostic driver to interface the MFRC522 (RFID reader/writer) - Esek edition"
 documentation = "https://docs.rs/mfrc522"
 license = "MIT OR Apache-2.0"
-repository = "https://gitlab.com/jspngh/rfid-rs"
+repository = "https://github.com/esek/e-rfid-rs"
 homepage = "https://gitlab.com/jspngh/rfid-rs"
 keywords = ["rfid", "mfrc522", "embedded-hal", "mifare"]
 categories = ["embedded", "hardware-support", "no-std"]
