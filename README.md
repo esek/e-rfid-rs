@@ -1,3 +1,10 @@
+# _This fork is not under active development, used internally as a locked dependency_
+
+Changes from original branch:
+
+- [x] This text
+- [x] Add `new` associated function to implementation of `GenericUid` to ease testing
+
 # Rust MFRC522 driver
 
 This is a `no_std` driver for the MFRC522, an *ISO/IEC 14443 A/MIFARE*

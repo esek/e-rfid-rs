@@ -182,6 +182,13 @@ where
 }
 
 impl<const T: usize> GenericUid<T> {
+    pub fn new(bytes: [u8; T], sak_byte: u8) -> Self {
+        Self {
+            bytes,
+            sak: picc::Sak::from(sak_byte),
+        }
+    }
+
     pub fn as_bytes(&self) -> &[u8] {
         &self.bytes
     }
