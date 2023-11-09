@@ -747,9 +747,14 @@ impl<const L: usize> FifoData<L> {
     /// Assumes the FIFO data is aligned properly to append directly to the current known bits.
     /// Returns the number of valid bits in the destination buffer after copy.
     pub fn copy_bits_to(&self, dst: &mut [u8], dst_valid_bits: u8) -> u8 {
+        if self.valid_bytes == 0 {
+            // nothing to copy
+            return dst_valid_bits;
+        }
+
         let dst_valid_bytes = dst_valid_bits / 8;
         let dst_valid_last_bits = dst_valid_bits % 8;
-        let mask: u8 = (0xFF << dst_valid_last_bits) & 0xFF;
+        let mask: u8 = 0xFF << dst_valid_last_bits;
         let mut idx = dst_valid_bytes as usize;
         dst[idx] = (self.buffer[0] & mask) | (dst[idx] & !mask);
         idx += 1;
